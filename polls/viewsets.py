@@ -163,7 +163,8 @@ class ManagerTeamViewSet(ModelViewSet):
 
 
 class TeamUsersViewSet(ModelViewSet):
-    # queryset: list[CustomUser] = CustomUser.objects.all()
+    
+
     serializer_class = CustomUserSerializer
     ordering_fields: list[str] = ['username', 'email']  
     ordering: list[str] = ['username']  

@@ -33,7 +33,7 @@ class CustomUserAdmin(UserAdmin):
 
 
     fieldsets = UserAdmin.fieldsets + (
-        (None, {'fields': ('role',)}),  # Додаємо поле для вибору ролі
+        (None, {'fields': ('role',)}),  
     )
 
     # Можна додавати кастомні поля в `add_fieldsets` для додавання вибору ролі при створенні користувача
