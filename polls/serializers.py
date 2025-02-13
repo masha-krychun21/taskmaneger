@@ -1,6 +1,5 @@
 from rest_framework import serializers
 from .models import Task, Comment, Notification, TaskHistory, TaskStatus
-from rest_framework.exceptions import ValidationError
 from polls.models import TaskComment
 from custom_auth.models import CustomUser, Team, Role
 

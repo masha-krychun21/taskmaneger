@@ -20,11 +20,10 @@ from rest_framework.filters import SearchFilter, OrderingFilter
 from .filters import TaskFilter
 from custom_auth.models import CustomUser, Team
 from polls.permissions import IsAuthenticatedCustom
-from .permissions import IsManagerOrAdmin, IsUserOrAdminOrManager
+from .permissions import IsManagerOrAdmin
 from rest_framework.decorators import action
 from rest_framework import status
 from rest_framework.views import APIView
-from rest_framework.exceptions import ValidationError
 
 
 class TaskViewSet(ModelViewSet):

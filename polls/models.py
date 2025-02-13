@@ -1,6 +1,5 @@
-from typing import Optional, Union
+from typing import Optional
 from django.db import models
-from django.db.models import Q, CheckConstraint
 from django.conf import settings
 
 
