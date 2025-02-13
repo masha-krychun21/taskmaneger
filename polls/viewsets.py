@@ -192,7 +192,9 @@ class TaskStatusUpdateView(APIView):
                     status=HTTP_400_BAD_REQUEST,
                 )
 
-            serializer = TaskStatusUpdateSerializer(instance=task, data=request.data, partial=True)
+            serializer = TaskStatusUpdateSerializer(
+                instance=task, data=request.data, partial=True
+            )
             if serializer.is_valid():
                 serializer.save()
                 return Response(serializer.data, status=HTTP_200_OK)

@@ -24,11 +24,15 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "name",
-                    models.CharField(max_length=50, unique=True, verbose_name="Код статусу"),
+                    models.CharField(
+                        max_length=50, unique=True, verbose_name="Код статусу"
+                    ),
                 ),
                 (
                     "display_name",
-                    models.CharField(max_length=100, verbose_name="Назва для відображення"),
+                    models.CharField(
+                        max_length=100, verbose_name="Назва для відображення"
+                    ),
                 ),
             ],
             options={

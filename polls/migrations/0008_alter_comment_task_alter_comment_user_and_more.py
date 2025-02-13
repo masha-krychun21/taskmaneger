@@ -27,6 +27,8 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name="taskhistory",
             name="task",
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to="polls.task"),
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE, to="polls.task"
+            ),
         ),
     ]

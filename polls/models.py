@@ -33,7 +33,9 @@ class Task(models.Model):
     )
 
     deadline: models.DateTimeField = models.DateTimeField(null=True, blank=True)
-    time_spent: Optional[models.DurationField] = models.DurationField(null=True, blank=True)
+    time_spent: Optional[models.DurationField] = models.DurationField(
+        null=True, blank=True
+    )
     created_at: models.DateTimeField = models.DateTimeField(auto_now_add=True)
     updated_at: models.DateTimeField = models.DateTimeField(auto_now=True)
 
@@ -42,7 +44,9 @@ class Task(models.Model):
 
 
 class Comment(models.Model):
-    task: models.ForeignKey = models.ForeignKey(Task, on_delete=models.CASCADE, related_name="comments")
+    task: models.ForeignKey = models.ForeignKey(
+        Task, on_delete=models.CASCADE, related_name="comments"
+    )
     user: str = models.CharField(max_length=255)
     text: str = models.TextField()
     created_at: models.DateTimeField = models.DateTimeField(auto_now_add=True)
@@ -62,7 +66,9 @@ class Notification(models.Model):
 
 class TaskHistory(models.Model):
     task: models.ForeignKey = models.ForeignKey("polls.Task", on_delete=models.CASCADE)
-    user: models.ForeignKey = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    user: models.ForeignKey = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE
+    )
     action: str = models.CharField(max_length=255)
     timestamp: models.DateTimeField = models.DateTimeField(auto_now_add=True)
     previous_value: Optional[str] = models.TextField(null=True, blank=True)
@@ -72,7 +78,9 @@ class TaskHistory(models.Model):
 
 
 class TaskComment(models.Model):
-    task: models.ForeignKey = models.ForeignKey(Task, on_delete=models.CASCADE, related_name="task_comments_set")
+    task: models.ForeignKey = models.ForeignKey(
+        Task, on_delete=models.CASCADE, related_name="task_comments_set"
+    )
     text: str = models.TextField()
     created_at: models.DateTimeField = models.DateTimeField(auto_now_add=True)
 

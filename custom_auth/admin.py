@@ -12,7 +12,9 @@ class TeamFilter(admin.SimpleListFilter):
     title: str = "team"
     parameter_name: str = "team"
 
-    def lookups(self, request: HttpRequest, model_admin: admin.ModelAdmin) -> List[Tuple[int, str]]:
+    def lookups(
+        self, request: HttpRequest, model_admin: admin.ModelAdmin
+    ) -> List[Tuple[int, str]]:
         teams: QuerySet = Team.objects.all()
         return [(team.id, team.name) for team in teams]
 
@@ -41,7 +43,9 @@ class CustomUserAdmin(UserAdmin):
     fieldsets = UserAdmin.fieldsets + ((None, {"fields": ("role",)}),)
 
     # Можна додавати кастомні поля в `add_fieldsets` для додавання вибору ролі при створенні користувача
-    add_fieldsets = UserAdmin.add_fieldsets + ((None, {"fields": ("role",)}),)  # Додаємо поле для вибору ролі
+    add_fieldsets = UserAdmin.add_fieldsets + (
+        (None, {"fields": ("role",)}),
+    )  # Додаємо поле для вибору ролі
 
     def team_list(self, obj: CustomUser) -> str:
         teams: QuerySet = obj.teams.all()

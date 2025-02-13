@@ -14,16 +14,22 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name="comment",
             name="user",
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to="custom_auth.user"),
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE, to="custom_auth.user"
+            ),
         ),
         migrations.AlterField(
             model_name="task",
             name="assigned_to",
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to="custom_auth.user"),
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE, to="custom_auth.user"
+            ),
         ),
         migrations.AlterField(
             model_name="taskhistory",
             name="user",
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to="custom_auth.user"),
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE, to="custom_auth.user"
+            ),
         ),
     ]
