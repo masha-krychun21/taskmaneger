@@ -13,8 +13,6 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="team",
             name="users",
-            field=models.ManyToManyField(
-                through="custom_auth.UserTeam", to=settings.AUTH_USER_MODEL
-            ),
+            field=models.ManyToManyField(through="custom_auth.UserTeam", to=settings.AUTH_USER_MODEL),
         ),
     ]

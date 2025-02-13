@@ -1,7 +1,9 @@
 from rest_framework import serializers
-from .models import Task, Comment, Notification, TaskHistory, TaskStatus
+
+from custom_auth.models import CustomUser, Role, Team
 from polls.models import TaskComment
-from custom_auth.models import CustomUser, Team, Role
+
+from .models import Comment, Notification, Task, TaskHistory, TaskStatus
 
 
 class TaskSerializer(serializers.ModelSerializer):

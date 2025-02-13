@@ -1,6 +1,7 @@
 from rest_framework.permissions import BasePermission
 from rest_framework.request import Request
 from rest_framework.views import View
+
 from .models import Task
 
 
@@ -29,6 +30,4 @@ class IsTaskOwnerOrAdmin(BasePermission):
 class IsUserOrAdminOrManager(BasePermission):
     def has_permission(self, request, view):
         user = request.user
-        return user.is_authenticated and (
-            user.role.name in ["Administrator", "Manager"] or user == view.get_object()
-        )
+        return user.is_authenticated and (user.role.name in ["Administrator", "Manager"] or user == view.get_object())

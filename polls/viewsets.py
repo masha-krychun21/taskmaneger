@@ -1,29 +1,31 @@
 from django.http import HttpRequest, HttpResponse
-from rest_framework.viewsets import ModelViewSet
-from rest_framework.response import Response
-from rest_framework.request import Request
-from rest_framework.permissions import BasePermission
-from rest_framework.status import HTTP_400_BAD_REQUEST, HTTP_200_OK
-from .models import Task, Comment, TaskComment, Notification, TaskHistory
-from .serializers import (
-    CommentSerializer,
-    TaskCommentSerializer,
-    TaskSerializer,
-    CustomUserSerializer,
-    TeamSerializer,
-    NotificationSerializer,
-    TaskHistorySerializer,
-    TaskStatusUpdateSerializer,
-)
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework.filters import SearchFilter, OrderingFilter
-from .filters import TaskFilter
+from rest_framework import status
+from rest_framework.decorators import action
+from rest_framework.filters import OrderingFilter, SearchFilter
+from rest_framework.permissions import BasePermission
+from rest_framework.request import Request
+from rest_framework.response import Response
+from rest_framework.status import HTTP_200_OK, HTTP_400_BAD_REQUEST
+from rest_framework.views import APIView
+from rest_framework.viewsets import ModelViewSet
+
 from custom_auth.models import CustomUser, Team
 from polls.permissions import IsAuthenticatedCustom
+
+from .filters import TaskFilter
+from .models import Comment, Notification, Task, TaskComment, TaskHistory
 from .permissions import IsManagerOrAdmin
-from rest_framework.decorators import action
-from rest_framework import status
-from rest_framework.views import APIView
+from .serializers import (
+    CommentSerializer,
+    CustomUserSerializer,
+    NotificationSerializer,
+    TaskCommentSerializer,
+    TaskHistorySerializer,
+    TaskSerializer,
+    TaskStatusUpdateSerializer,
+    TeamSerializer,
+)
 
 
 class TaskViewSet(ModelViewSet):
@@ -190,9 +192,7 @@ class TaskStatusUpdateView(APIView):
                     status=HTTP_400_BAD_REQUEST,
                 )
 
-            serializer = TaskStatusUpdateSerializer(
-                instance=task, data=request.data, partial=True
-            )
+            serializer = TaskStatusUpdateSerializer(instance=task, data=request.data, partial=True)
             if serializer.is_valid():
                 serializer.save()
                 return Response(serializer.data, status=HTTP_200_OK)

@@ -4,3 +4,4 @@ django-rest-swagger==2.2.0
 drf-yasg==1.21.8
 drf-nested-routers==0.94.1
 ruff==0.9.6
+
