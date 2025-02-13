@@ -7,10 +7,12 @@ from django.contrib.auth.admin import UserAdmin
 
 
 class TeamFilter(admin.SimpleListFilter):
-    title: str = 'team'  
-    parameter_name: str = 'team'  
+    title: str = "team"
+    parameter_name: str = "team"
 
-    def lookups(self, request: HttpRequest, model_admin: admin.ModelAdmin) -> List[Tuple[int, str]]:
+    def lookups(
+        self, request: HttpRequest, model_admin: admin.ModelAdmin
+    ) -> List[Tuple[int, str]]:
         teams: QuerySet = Team.objects.all()
         return [(team.id, team.name) for team in teams]
 
@@ -22,39 +24,40 @@ class TeamFilter(admin.SimpleListFilter):
 
 class UserTeamInline(admin.TabularInline):
     model: Any = UserTeam
-    extra: int = 1  
+    extra: int = 1
 
 
 class CustomUserAdmin(UserAdmin):
-    list_display: List[str] = ['username', 'role', 'is_staff', 'is_active', 'team_list']  
-    search_fields: List[str] = ['username', 'email']
-    list_filter: List[Union[str, TeamFilter]] = ['role', 'is_staff', 'is_active', TeamFilter]  
-    inlines: List[admin.TabularInline] = [UserTeamInline]  
+    list_display: List[str] = ["username", "role", "is_staff", "is_active", "team_list"]
+    search_fields: List[str] = ["username", "email"]
+    list_filter: List[Union[str, TeamFilter]] = [
+        "role",
+        "is_staff",
+        "is_active",
+        TeamFilter,
+    ]
+    inlines: List[admin.TabularInline] = [UserTeamInline]
 
-
-    fieldsets = UserAdmin.fieldsets + (
-        (None, {'fields': ('role',)}),  
-    )
+    fieldsets = UserAdmin.fieldsets + ((None, {"fields": ("role",)}),)
 
     # Можна додавати кастомні поля в `add_fieldsets` для додавання вибору ролі при створенні користувача
     add_fieldsets = UserAdmin.add_fieldsets + (
-        (None, {'fields': ('role',)}),  # Додаємо поле для вибору ролі
+        (None, {"fields": ("role",)}),  # Додаємо поле для вибору ролі
     )
-    
-    
+
     def team_list(self, obj: CustomUser) -> str:
-        teams: QuerySet = obj.teams.all()  
+        teams: QuerySet = obj.teams.all()
         if teams.exists():
             return ", ".join([team.name for team in teams])
-        return "-"  
+        return "-"
 
-    team_list.short_description: str = "Teams"  
+    team_list.short_description: str = "Teams"
 
 
 class TeamAdmin(admin.ModelAdmin):
-    list_display: List[str] = ['name', 'description']
-    search_fields: List[str] = ['name']
-    list_filter: List[str] = ['name']
+    list_display: List[str] = ["name", "description"]
+    search_fields: List[str] = ["name"]
+    list_filter: List[str] = ["name"]
 
 
 admin.site.register(CustomUser, CustomUserAdmin)

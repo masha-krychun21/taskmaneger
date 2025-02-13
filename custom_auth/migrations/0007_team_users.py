@@ -5,15 +5,16 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('custom_auth', '0006_alter_userteam_unique_together'),
+        ("custom_auth", "0006_alter_userteam_unique_together"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='team',
-            name='users',
-            field=models.ManyToManyField(through='custom_auth.UserTeam', to=settings.AUTH_USER_MODEL),
+            model_name="team",
+            name="users",
+            field=models.ManyToManyField(
+                through="custom_auth.UserTeam", to=settings.AUTH_USER_MODEL
+            ),
         ),
     ]

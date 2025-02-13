@@ -4,15 +4,14 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('polls', '0009_alter_task_assigned_to_alter_taskhistory_user'),
+        ("polls", "0009_alter_task_assigned_to_alter_taskhistory_user"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='task',
-            name='title',
+            model_name="task",
+            name="title",
             field=models.CharField(max_length=100),
         ),
     ]

@@ -5,26 +5,31 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('custom_auth', '__first__'),
-        ('polls', '0006_alter_comment_task_taskcomment'),
+        ("custom_auth", "__first__"),
+        ("polls", "0006_alter_comment_task_taskcomment"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='comment',
-            name='user',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='custom_auth.user'),
+            model_name="comment",
+            name="user",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE, to="custom_auth.user"
+            ),
         ),
         migrations.AlterField(
-            model_name='task',
-            name='assigned_to',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='custom_auth.user'),
+            model_name="task",
+            name="assigned_to",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE, to="custom_auth.user"
+            ),
         ),
         migrations.AlterField(
-            model_name='taskhistory',
-            name='user',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='custom_auth.user'),
+            model_name="taskhistory",
+            name="user",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE, to="custom_auth.user"
+            ),
         ),
     ]

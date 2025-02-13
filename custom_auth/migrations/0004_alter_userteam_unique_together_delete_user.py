@@ -4,17 +4,16 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('custom_auth', '0003_alter_role_name'),
+        ("custom_auth", "0003_alter_role_name"),
     ]
 
     operations = [
         migrations.AlterUniqueTogether(
-            name='userteam',
-            unique_together={('user', 'team')},
+            name="userteam",
+            unique_together={("user", "team")},
         ),
         migrations.DeleteModel(
-            name='User',
+            name="User",
         ),
     ]

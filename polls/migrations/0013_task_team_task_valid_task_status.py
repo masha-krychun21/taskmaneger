@@ -6,21 +6,40 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('custom_auth', '0008_alter_customuser_role'),
-        ('polls', '0012_alter_task_deadline'),
+        ("custom_auth", "0008_alter_customuser_role"),
+        ("polls", "0012_alter_task_deadline"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='task',
-            name='team',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='tasks', to='custom_auth.team'),
+            model_name="task",
+            name="team",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="tasks",
+                to="custom_auth.team",
+            ),
         ),
         migrations.AddConstraint(
-            model_name='task',
-            constraint=models.CheckConstraint(condition=models.Q(('status__in', ['new', 'in_progress', 'waiting_for_review', 'rework', 'completed'])), name='valid_task_status'),
+            model_name="task",
+            constraint=models.CheckConstraint(
+                condition=models.Q(
+                    (
+                        "status__in",
+                        [
+                            "new",
+                            "in_progress",
+                            "waiting_for_review",
+                            "rework",
+                            "completed",
+                        ],
+                    )
+                ),
+                name="valid_task_status",
+            ),
         ),
     ]

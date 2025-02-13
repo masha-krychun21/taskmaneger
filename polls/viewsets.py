@@ -27,43 +27,41 @@ from rest_framework.views import APIView
 from rest_framework.exceptions import ValidationError
 
 
-
 class TaskViewSet(ModelViewSet):
-    queryset = Task.objects.all().order_by('id')
+    queryset = Task.objects.all().order_by("id")
     serializer_class = TaskSerializer
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
     filterset_class = TaskFilter
-    search_fields = ['title', 'description']
-    ordering_fields = ['created_at', 'deadline', 'status']
-    ordering = ['created_at']
-    permission_classes = [IsAuthenticatedCustom]  
-
+    search_fields = ["title", "description"]
+    ordering_fields = ["created_at", "deadline", "status"]
+    ordering = ["created_at"]
+    permission_classes = [IsAuthenticatedCustom]
 
     def get_queryset(self):
         user = self.request.user
-        assigned_to_me = self.request.query_params.get('assigned_to_me', None)
-        assigned_to_team = self.request.query_params.get('assigned_to_team', None)
-        team_id = self.request.query_params.get('team_id', None)
-        user_id = self.request.query_params.get('user', None)
+        assigned_to_me = self.request.query_params.get("assigned_to_me", None)
+        assigned_to_team = self.request.query_params.get("assigned_to_team", None)
+        team_id = self.request.query_params.get("team_id", None)
+        user_id = self.request.query_params.get("user", None)
 
         queryset = Task.objects.all()
 
-        if assigned_to_me == 'true':  
+        if assigned_to_me == "true":
             queryset = queryset.filter(assigned_to=user)
 
-        if assigned_to_team == 'true':  
-            teams = user.teams.all()  
+        if assigned_to_team == "true":
+            teams = user.teams.all()
             queryset = queryset.filter(team__in=teams)
 
-            if team_id:  
+            if team_id:
                 queryset = queryset.filter(team_id=team_id)
 
-            if user_id:  
+            if user_id:
                 queryset = queryset.filter(assigned_to_id=user_id)
-                
-        if user.role.name == 'Admin':
-            if assigned_to_team == 'true':
-                teams = user.teams.all()  
+
+        if user.role.name == "Admin":
+            if assigned_to_team == "true":
+                teams = user.teams.all()
                 queryset = queryset.filter(team__in=teams)
 
                 if team_id:
@@ -75,38 +73,37 @@ class TaskViewSet(ModelViewSet):
         return queryset
 
     def get_permissions(self) -> list[BasePermission]:
-        if self.action == 'create':
+        if self.action == "create":
             self.permission_classes = [IsManagerOrAdmin]
-        elif self.action in ['update', 'partial_update', 'destroy']:
+        elif self.action in ["update", "partial_update", "destroy"]:
             self.permission_classes = [IsManagerOrAdmin]
         return super().get_permissions()
-    
-    @action(detail=True, methods=['patch'])
+
+    @action(detail=True, methods=["patch"])
     def status(self, request: Request, pk: int = None) -> Response:
         task = self.get_object()
 
         serializer = TaskStatusUpdateSerializer(data=request.data)
 
         if serializer.is_valid():
-            task.status = serializer.validated_data['status']
+            task.status = serializer.validated_data["status"]
             task.save(update_fields=["status"])
-            return Response({'status': task.status}, status=status.HTTP_200_OK)
+            return Response({"status": task.status}, status=status.HTTP_200_OK)
         else:
-            return Response(serializer.errors,
-                            status=status.HTTP_400_BAD_REQUEST)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class CommentViewSet(ModelViewSet):
     queryset: list[Comment] = Comment.objects.all()
     serializer_class = CommentSerializer
     filter_backends: list = [DjangoFilterBackend, SearchFilter, OrderingFilter]
-    filterset_fields: list[str] = ['task', 'user']
-    search_fields: list[str] = ['text']
-    ordering_fields: list[str] = ['created_at']
-    ordering: list[str] = ['created_at']
+    filterset_fields: list[str] = ["task", "user"]
+    search_fields: list[str] = ["text"]
+    ordering_fields: list[str] = ["created_at"]
+    ordering: list[str] = ["created_at"]
 
     def get_queryset(self) -> list[Comment]:
-        task_id: int = self.kwargs['task_pk']
+        task_id: int = self.kwargs["task_pk"]
         if task_id:
             return Comment.objects.filter(task_id=task_id)
         return Comment.objects.all()
@@ -116,19 +113,19 @@ class NotificationViewSet(ModelViewSet):
     queryset: list[Notification] = Notification.objects.all()
     serializer_class = NotificationSerializer
     filter_backends: list = [SearchFilter, OrderingFilter]
-    search_fields: list[str] = ['message', 'status']
-    ordering_fields: list[str] = ['created_at', 'status']
-    ordering: list[str] = ['created_at']
+    search_fields: list[str] = ["message", "status"]
+    ordering_fields: list[str] = ["created_at", "status"]
+    ordering: list[str] = ["created_at"]
 
 
 class TaskHistoryViewSet(ModelViewSet):
     queryset: list[TaskHistory] = TaskHistory.objects.all()
     serializer_class = TaskHistorySerializer
     filter_backends: list = [DjangoFilterBackend, SearchFilter, OrderingFilter]
-    filterset_fields: list[str] = ['task', 'user', 'action']
-    search_fields: list[str] = ['action', 'previous_value']
-    ordering_fields: list[str] = ['timestamp']
-    ordering: list[str] = ['timestamp']
+    filterset_fields: list[str] = ["task", "user", "action"]
+    search_fields: list[str] = ["action", "previous_value"]
+    ordering_fields: list[str] = ["timestamp"]
+    ordering: list[str] = ["timestamp"]
 
 
 class TaskCommentViewSet(ModelViewSet):
@@ -156,23 +153,19 @@ class ManagerTeamViewSet(ModelViewSet):
     serializer_class = TeamSerializer
 
     def get_queryset(self):
-        team_id = self.kwargs['pk']  
+        team_id = self.kwargs["pk"]
         user = self.request.user
-        return user.teams.filter(id=team_id, userteam__is_manager=True).order_by('id')
-
+        return user.teams.filter(id=team_id, userteam__is_manager=True).order_by("id")
 
 
 class TeamUsersViewSet(ModelViewSet):
-    
-
     serializer_class = CustomUserSerializer
-    ordering_fields: list[str] = ['username', 'email']  
-    ordering: list[str] = ['username']  
-    
-    def get_queryset(self):
-        team_id = self.kwargs['team_pk']  
-        return CustomUser.objects.filter(userteam__team_id=team_id).order_by('username')
+    ordering_fields: list[str] = ["username", "email"]
+    ordering: list[str] = ["username"]
 
+    def get_queryset(self):
+        team_id = self.kwargs["team_pk"]
+        return CustomUser.objects.filter(userteam__team_id=team_id).order_by("username")
 
 
 class TeamUserTasksViewSet(ModelViewSet):
@@ -180,8 +173,8 @@ class TeamUserTasksViewSet(ModelViewSet):
     serializer_class = TaskSerializer
 
     def get_queryset(self) -> list[Task]:
-        team_id = self.kwargs['team_pk']
-        user_id = self.kwargs['user_pk']
+        team_id = self.kwargs["team_pk"]
+        user_id = self.kwargs["user_pk"]
         return Task.objects.filter(team__id=team_id, assigned_to__id=user_id)
 
 
@@ -193,9 +186,14 @@ class TaskStatusUpdateView(APIView):
             task = Task.objects.get(pk=pk)
 
             if task.assigned_to != request.user:
-                return Response({"error": "You do not have permission to update this task."}, status=HTTP_400_BAD_REQUEST)
+                return Response(
+                    {"error": "You do not have permission to update this task."},
+                    status=HTTP_400_BAD_REQUEST,
+                )
 
-            serializer = TaskStatusUpdateSerializer(instance=task, data=request.data, partial=True)
+            serializer = TaskStatusUpdateSerializer(
+                instance=task, data=request.data, partial=True
+            )
             if serializer.is_valid():
                 serializer.save()
                 return Response(serializer.data, status=HTTP_200_OK)

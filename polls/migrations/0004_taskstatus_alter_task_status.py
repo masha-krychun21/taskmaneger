@@ -5,27 +5,49 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('polls', '0003_alter_comment_user_alter_task_assigned_to_and_more'),
+        ("polls", "0003_alter_comment_user_alter_task_assigned_to_and_more"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='TaskStatus',
+            name="TaskStatus",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=50, unique=True, verbose_name='Код статусу')),
-                ('display_name', models.CharField(max_length=100, verbose_name='Назва для відображення')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "name",
+                    models.CharField(
+                        max_length=50, unique=True, verbose_name="Код статусу"
+                    ),
+                ),
+                (
+                    "display_name",
+                    models.CharField(
+                        max_length=100, verbose_name="Назва для відображення"
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'Статус задачі',
-                'verbose_name_plural': 'Статуси задач',
+                "verbose_name": "Статус задачі",
+                "verbose_name_plural": "Статуси задач",
             },
         ),
         migrations.AlterField(
-            model_name='task',
-            name='status',
-            field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, to='polls.taskstatus', verbose_name='Статус'),
+            model_name="task",
+            name="status",
+            field=models.ForeignKey(
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                to="polls.taskstatus",
+                verbose_name="Статус",
+            ),
         ),
     ]

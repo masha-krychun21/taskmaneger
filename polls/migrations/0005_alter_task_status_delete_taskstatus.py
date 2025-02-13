@@ -4,18 +4,28 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('polls', '0004_taskstatus_alter_task_status'),
+        ("polls", "0004_taskstatus_alter_task_status"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='task',
-            name='status',
-            field=models.CharField(choices=[('new', 'Нова'), ('in_progress', 'В процесі'), ('waiting_for_review', 'Очікує перевірки'), ('rework', 'Повернуто на доробку'), ('completed', 'Завершена')], default='new', max_length=20, verbose_name='Статус'),
+            model_name="task",
+            name="status",
+            field=models.CharField(
+                choices=[
+                    ("new", "Нова"),
+                    ("in_progress", "В процесі"),
+                    ("waiting_for_review", "Очікує перевірки"),
+                    ("rework", "Повернуто на доробку"),
+                    ("completed", "Завершена"),
+                ],
+                default="new",
+                max_length=20,
+                verbose_name="Статус",
+            ),
         ),
         migrations.DeleteModel(
-            name='TaskStatus',
+            name="TaskStatus",
         ),
     ]

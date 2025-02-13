@@ -4,14 +4,13 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('polls', '0013_task_team_task_valid_task_status'),
+        ("polls", "0013_task_team_task_valid_task_status"),
     ]
 
     operations = [
         migrations.RemoveConstraint(
-            model_name='task',
-            name='valid_task_status',
+            model_name="task",
+            name="valid_task_status",
         ),
     ]

@@ -4,15 +4,14 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('custom_auth', '0002_alter_user_options_alter_userteam_user_and_more'),
+        ("custom_auth", "0002_alter_user_options_alter_userteam_user_and_more"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='role',
-            name='name',
+            model_name="role",
+            name="name",
             field=models.CharField(max_length=100, unique=True),
         ),
     ]

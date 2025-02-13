@@ -5,25 +5,30 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('polls', '0007_alter_comment_user_alter_task_assigned_to_and_more'),
+        ("polls", "0007_alter_comment_user_alter_task_assigned_to_and_more"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='comment',
-            name='task',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='comments', to='polls.task'),
+            model_name="comment",
+            name="task",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="comments",
+                to="polls.task",
+            ),
         ),
         migrations.AlterField(
-            model_name='comment',
-            name='user',
+            model_name="comment",
+            name="user",
             field=models.CharField(max_length=255),
         ),
         migrations.AlterField(
-            model_name='taskhistory',
-            name='task',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='polls.task'),
+            model_name="taskhistory",
+            name="task",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE, to="polls.task"
+            ),
         ),
     ]

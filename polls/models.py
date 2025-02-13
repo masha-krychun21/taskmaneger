@@ -5,37 +5,37 @@ from django.conf import settings
 
 
 class TaskStatus(models.TextChoices):
-    NEW = 'new', 'Нова'
-    IN_PROGRESS = 'in_progress', 'В процесі'
-    WAITING_FOR_REVIEW = 'waiting_for_review', 'Очікує перевірки'
-    REWORK = 'rework', 'Повернуто на доробку'
-    COMPLETED = 'completed', 'Завершена'
+    NEW = "new", "Нова"
+    IN_PROGRESS = "in_progress", "В процесі"
+    WAITING_FOR_REVIEW = "waiting_for_review", "Очікує перевірки"
+    REWORK = "rework", "Повернуто на доробку"
+    COMPLETED = "completed", "Завершена"
 
 
 class Task(models.Model):
     title: str = models.CharField(max_length=100)
     description: str = models.TextField()
     assigned_to: models.ForeignKey = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
-        on_delete=models.CASCADE,
-        related_name='tasks'
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="tasks"
     )
     status: str = models.CharField(
         max_length=20,
         choices=TaskStatus.choices,
         default=TaskStatus.NEW,
-        verbose_name="Статус"
+        verbose_name="Статус",
     )
     team = models.ForeignKey(
-        'custom_auth.Team',  
+        "custom_auth.Team",
         on_delete=models.CASCADE,
-        related_name='tasks',
-        null=True,  
-        blank=True
+        related_name="tasks",
+        null=True,
+        blank=True,
     )
-    
+
     deadline: models.DateTimeField = models.DateTimeField(null=True, blank=True)
-    time_spent: Optional[models.DurationField] = models.DurationField(null=True, blank=True)
+    time_spent: Optional[models.DurationField] = models.DurationField(
+        null=True, blank=True
+    )
     created_at: models.DateTimeField = models.DateTimeField(auto_now_add=True)
     updated_at: models.DateTimeField = models.DateTimeField(auto_now=True)
 
@@ -45,21 +45,19 @@ class Task(models.Model):
 
 class Comment(models.Model):
     task: models.ForeignKey = models.ForeignKey(
-        Task,
-        on_delete=models.CASCADE,
-        related_name='comments'
+        Task, on_delete=models.CASCADE, related_name="comments"
     )
     user: str = models.CharField(max_length=255)
     text: str = models.TextField()
     created_at: models.DateTimeField = models.DateTimeField(auto_now_add=True)
 
     def __str__(self) -> str:
-        return f'Comment by {self.user} on {self.task}'
+        return f"Comment by {self.user} on {self.task}"
 
 
 class Notification(models.Model):
     message: str = models.TextField()
-    status: str = models.CharField(max_length=20, default='unread')  # unread or read
+    status: str = models.CharField(max_length=20, default="unread")  # unread or read
     created_at: models.DateTimeField = models.DateTimeField(auto_now_add=True)
 
     def __str__(self) -> str:
@@ -67,13 +65,9 @@ class Notification(models.Model):
 
 
 class TaskHistory(models.Model):
-    task: models.ForeignKey = models.ForeignKey(
-        'polls.Task',
-        on_delete=models.CASCADE
-    )
+    task: models.ForeignKey = models.ForeignKey("polls.Task", on_delete=models.CASCADE)
     user: models.ForeignKey = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
-        on_delete=models.CASCADE
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE
     )
     action: str = models.CharField(max_length=255)
     timestamp: models.DateTimeField = models.DateTimeField(auto_now_add=True)
@@ -85,13 +79,10 @@ class TaskHistory(models.Model):
 
 class TaskComment(models.Model):
     task: models.ForeignKey = models.ForeignKey(
-        Task,
-        on_delete=models.CASCADE,
-        related_name="task_comments_set"
+        Task, on_delete=models.CASCADE, related_name="task_comments_set"
     )
     text: str = models.TextField()
     created_at: models.DateTimeField = models.DateTimeField(auto_now_add=True)
 
     def __str__(self) -> str:
         return f"Task comment: {self.text}"
-
