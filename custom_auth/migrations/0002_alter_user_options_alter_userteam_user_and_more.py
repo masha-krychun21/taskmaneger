@@ -17,9 +17,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name="userteam",
             name="user",
-            field=models.ForeignKey(
-                on_delete=django.db.models.deletion.CASCADE, to="custom_auth.customuser"
-            ),
+            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to="custom_auth.customuser"),
         ),
         migrations.AlterModelTable(
             name="user",

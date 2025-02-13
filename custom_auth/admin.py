@@ -1,4 +1,4 @@
-from typing import Any, List, Optional, Tuple, Union
+from typing import Any, Optional, Union
 
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
@@ -12,9 +12,7 @@ class TeamFilter(admin.SimpleListFilter):
     title: str = "team"
     parameter_name: str = "team"
 
-    def lookups(
-        self, request: HttpRequest, model_admin: admin.ModelAdmin
-    ) -> List[Tuple[int, str]]:
+    def lookups(self, request: HttpRequest, model_admin: admin.ModelAdmin) -> list[tuple[int, str]]:
         teams: QuerySet = Team.objects.all()
         return [(team.id, team.name) for team in teams]
 
@@ -30,22 +28,20 @@ class UserTeamInline(admin.TabularInline):
 
 
 class CustomUserAdmin(UserAdmin):
-    list_display: List[str] = ["username", "role", "is_staff", "is_active", "team_list"]
-    search_fields: List[str] = ["username", "email"]
-    list_filter: List[Union[str, TeamFilter]] = [
+    list_display: list[str] = ["username", "role", "is_staff", "is_active", "team_list"]
+    search_fields: list[str] = ["username", "email"]
+    list_filter: list[Union[str, TeamFilter]] = [
         "role",
         "is_staff",
         "is_active",
         TeamFilter,
     ]
-    inlines: List[admin.TabularInline] = [UserTeamInline]
+    inlines: list[admin.TabularInline] = [UserTeamInline]
 
     fieldsets = UserAdmin.fieldsets + ((None, {"fields": ("role",)}),)
 
     # Можна додавати кастомні поля в `add_fieldsets` для додавання вибору ролі при створенні користувача
-    add_fieldsets = UserAdmin.add_fieldsets + (
-        (None, {"fields": ("role",)}),
-    )  # Додаємо поле для вибору ролі
+    add_fieldsets = UserAdmin.add_fieldsets + ((None, {"fields": ("role",)}),)  # Додаємо поле для вибору ролі
 
     def team_list(self, obj: CustomUser) -> str:
         teams: QuerySet = obj.teams.all()
@@ -57,9 +53,9 @@ class CustomUserAdmin(UserAdmin):
 
 
 class TeamAdmin(admin.ModelAdmin):
-    list_display: List[str] = ["name", "description"]
-    search_fields: List[str] = ["name"]
-    list_filter: List[str] = ["name"]
+    list_display: list[str] = ["name", "description"]
+    search_fields: list[str] = ["name"]
+    list_filter: list[str] = ["name"]
 
 
 admin.site.register(CustomUser, CustomUserAdmin)

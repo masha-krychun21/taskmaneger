@@ -29,9 +29,7 @@ teams_router = NestedDefaultRouter(router, r"teams", lookup="team")
 teams_router.register(r"users", TeamUsersViewSet, basename="team-users")
 
 team_user_tasks_router = NestedDefaultRouter(teams_router, r"users", lookup="user")
-team_user_tasks_router.register(
-    r"tasks", TeamUserTasksViewSet, basename="team-user-tasks"
-)
+team_user_tasks_router.register(r"tasks", TeamUserTasksViewSet, basename="team-user-tasks")
 
 urlpatterns = [
     path("", include(router.urls)),

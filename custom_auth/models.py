@@ -20,18 +20,14 @@ class Role(models.Model):
 class Team(models.Model):
     name: models.CharField = models.CharField(max_length=100)
     description: models.TextField = models.TextField()
-    users: models.ManyToManyField = models.ManyToManyField(
-        "CustomUser", through="UserTeam"
-    )
+    users: models.ManyToManyField = models.ManyToManyField("CustomUser", through="UserTeam")
 
     def __str__(self) -> str:
         return self.name
 
 
 class CustomUser(AbstractUser):
-    role: Optional[models.ForeignKey[Role]] = models.ForeignKey(
-        Role, on_delete=models.CASCADE, null=True, blank=True
-    )
+    role: Optional[models.ForeignKey[Role]] = models.ForeignKey(Role, on_delete=models.CASCADE, null=True, blank=True)
     teams: models.ManyToManyField = models.ManyToManyField(Team, through="UserTeam")
 
     def make_admin(self) -> None:
@@ -61,9 +57,7 @@ class CustomUser(AbstractUser):
 class UserTeam(models.Model):
     user: models.ForeignKey = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     team: models.ForeignKey = models.ForeignKey(Team, on_delete=models.CASCADE)
-    is_manager: models.BooleanField = models.BooleanField(
-        default=False
-    )  # Якщо користувач є менеджером цієї команди
+    is_manager: models.BooleanField = models.BooleanField(default=False)  # Якщо користувач є менеджером цієї команди
 
     def __str__(self) -> str:
         return f"{self.user.username} - {self.team.name}"
@@ -71,7 +65,5 @@ class UserTeam(models.Model):
     def save(self, *args: Optional[tuple], **kwargs: Optional[dict]) -> None:
         # Забезпечуємо, щоб у кожній команді був тільки один менеджер
         if self.is_manager:
-            UserTeam.objects.filter(team=self.team, is_manager=True).exclude(
-                id=self.id
-            ).update(is_manager=False)
+            UserTeam.objects.filter(team=self.team, is_manager=True).exclude(id=self.id).update(is_manager=False)
         super().save(*args, **kwargs)
