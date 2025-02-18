@@ -1,4 +1,8 @@
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+from django.forms import ValidationError
 from django.http import HttpRequest, HttpResponse
+from django.utils.timezone import now
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import status
 from rest_framework.decorators import action
@@ -10,21 +14,25 @@ from rest_framework.status import HTTP_200_OK, HTTP_400_BAD_REQUEST
 from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
 
-from custom_auth.models import CustomUser, Team
+from custom_auth.models import CustomUser, Role, Team
+from polls import permissions
 from polls.permissions import IsAuthenticatedCustom
 
 from .filters import TaskFilter
-from .models import Comment, Notification, Task, TaskComment, TaskHistory
+from .models import Comment, Notification, NotificationSettings, Task, TaskComment, TaskHistory, TaskReminder
 from .permissions import IsManagerOrAdmin
 from .serializers import (
     CommentSerializer,
     CustomUserSerializer,
     NotificationSerializer,
+    NotificationSettingsSerializer,
     TaskCommentSerializer,
     TaskHistorySerializer,
+    TaskReminderSerializer,
     TaskSerializer,
     TaskStatusUpdateSerializer,
     TeamSerializer,
+    UserSerializer,
 )
 
 
@@ -46,6 +54,9 @@ class TaskViewSet(ModelViewSet):
         user_id = self.request.query_params.get("user", None)
 
         queryset = Task.objects.all()
+
+        if not user.is_authenticated:
+            return Task.objects.none()
 
         if assigned_to_me == "true":
             queryset = queryset.filter(assigned_to=user)
@@ -104,19 +115,25 @@ class CommentViewSet(ModelViewSet):
     ordering: list[str] = ["created_at"]
 
     def get_queryset(self) -> list[Comment]:
-        task_id: int = self.kwargs["task_pk"]
+        task_id = self.kwargs.get("task_pk")
+        if task_id is None:
+            raise ValidationError("task_pk is required")
         if task_id:
             return Comment.objects.filter(task_id=task_id)
         return Comment.objects.all()
 
 
 class NotificationViewSet(ModelViewSet):
-    queryset: list[Notification] = Notification.objects.all()
+    queryset = Notification.objects.all()
     serializer_class = NotificationSerializer
+    permission_classes = [permissions.IsAuthenticatedCustom]
     filter_backends: list = [SearchFilter, OrderingFilter]
     search_fields: list[str] = ["message", "status"]
     ordering_fields: list[str] = ["created_at", "status"]
     ordering: list[str] = ["created_at"]
+
+    def get_queryset(self):
+        return self.queryset.filter(user=self.request.user)
 
 
 class TaskHistoryViewSet(ModelViewSet):
@@ -155,6 +172,8 @@ class ManagerTeamViewSet(ModelViewSet):
 
     def get_queryset(self):
         team_id = self.kwargs["pk"]
+        if team_id is None:
+            raise ValidationError("pk is required")
         user = self.request.user
         return user.teams.filter(id=team_id, userteam__is_manager=True).order_by("id")
 
@@ -166,6 +185,8 @@ class TeamUsersViewSet(ModelViewSet):
 
     def get_queryset(self):
         team_id = self.kwargs["team_pk"]
+        if team_id is None:
+            raise ValidationError("team_pk is required")
         return CustomUser.objects.filter(userteam__team_id=team_id).order_by("username")
 
 
@@ -176,6 +197,8 @@ class TeamUserTasksViewSet(ModelViewSet):
     def get_queryset(self) -> list[Task]:
         team_id = self.kwargs["team_pk"]
         user_id = self.kwargs["user_pk"]
+        if team_id is None:
+            raise ValidationError("team_pk is required")
         return Task.objects.filter(team__id=team_id, assigned_to__id=user_id)
 
 
@@ -199,3 +222,73 @@ class TaskStatusUpdateView(APIView):
             return Response(serializer.errors, status=HTTP_400_BAD_REQUEST)
         except Task.DoesNotExist:
             return Response({"error": "Task not found."}, status=HTTP_400_BAD_REQUEST)
+
+
+# registration
+class UserViewSet(ModelViewSet):
+    queryset = CustomUser.objects.all()
+    serializer_class = UserSerializer
+    permission_classes = [IsManagerOrAdmin]
+
+    def create(self, request, *args, **kwargs):
+        manager_role_id = Role.objects.get(name="Manager").id
+        admin_role_id = Role.objects.get(name="Administrator").id
+
+        if request.user.role and request.user.role.id == manager_role_id and request.data.get("role") == admin_role_id:
+            return Response({"error": "Manager cannot create administrators.."}, status=403)
+
+        return super().create(request, *args, **kwargs)
+
+
+# Notification
+class NotificationSettingsViewSet(ModelViewSet):
+    queryset = NotificationSettings.objects.all()
+    serializer_class = NotificationSettingsSerializer
+    permission_classes = [permissions.IsAuthenticatedCustom]
+
+    def get_queryset(self):
+        return self.queryset.filter(user=self.request.user)
+
+
+class TaskReminderViewSet(ModelViewSet):
+    queryset = TaskReminder.objects.all()
+    serializer_class = TaskReminderSerializer
+    permission_classes = [permissions.IsAuthenticatedCustom]
+
+    def get_queryset(self):
+        return self.queryset.filter(user=self.request.user)
+
+
+@receiver(post_save, sender=Task)
+def create_task_notification(sender, instance, created, **kwargs):
+    if created:
+        Notification.objects.create(
+            user=instance.assigned_to, message=f"You have been assigned a new task: {instance.title}"
+        )
+    else:
+        Notification.objects.create(
+            user=instance.assigned_to,
+            message=f"The status of your task '{instance.title}' changed to {instance.status}",
+        )
+
+
+@receiver(post_save, sender=TaskReminder)
+def send_task_reminder(sender, instance, **kwargs):
+    if not instance.sent and instance.remind_at <= now():
+        Notification.objects.create(user=instance.user, message=f"Reminder: Deadline for '{instance.task.title}'")
+        instance.sent = True
+        instance.save()
+
+
+class MarkNotificationAsRead(APIView):
+    permission_classes = [IsAuthenticatedCustom]
+
+    def post(self, request, notification_id):
+        try:
+            notification = Notification.objects.get(id=notification_id, user=request.user)
+            notification.mark_as_read()
+            return Response({"message": "Notification marked as read"}, status=status.HTTP_200_OK)
+        except Notification.DoesNotExist:
+            return Response(
+                {"message": "Notification not found or doesn't belong to this user"}, status=status.HTTP_404_NOT_FOUND
+            )

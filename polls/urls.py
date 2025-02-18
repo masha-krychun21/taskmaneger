@@ -5,12 +5,16 @@ from rest_framework_nested.routers import NestedDefaultRouter
 from .viewsets import (
     CommentViewSet,
     ManagerTeamViewSet,
+    MarkNotificationAsRead,
+    NotificationSettingsViewSet,
     NotificationViewSet,
     TaskHistoryViewSet,
+    TaskReminderViewSet,
     TaskStatusUpdateView,
     TaskViewSet,
     TeamUsersViewSet,
     TeamUserTasksViewSet,
+    UserViewSet,
 )
 
 # Основний роутер
@@ -21,6 +25,9 @@ router.register(r"notifications", NotificationViewSet, basename="notification")
 router.register(r"task-history", TaskHistoryViewSet, basename="taskhistory")
 router.register(r"manager/teams", ManagerTeamViewSet, basename="manager-teams")
 router.register(r"teams", ManagerTeamViewSet, basename="team")
+router.register(r"users", UserViewSet)
+router.register(r"notification-settings", NotificationSettingsViewSet, basename="notification-settings")
+router.register(r"task-reminders", TaskReminderViewSet, basename="task-reminder")
 
 tasks_router = NestedDefaultRouter(router, r"tasks", lookup="task")
 tasks_router.register(r"comments", CommentViewSet, basename="task-comments")
@@ -41,4 +48,5 @@ urlpatterns = [
         TaskStatusUpdateView.as_view(),
         name="task-update-status",
     ),
+    path("notifications/<int:notification_id>/mark_as_read/", MarkNotificationAsRead.as_view(), name="mark_as_read"),
 ]

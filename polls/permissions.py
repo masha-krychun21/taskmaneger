@@ -12,15 +12,19 @@ class IsAuthenticatedCustom(BasePermission):
 
 class IsManagerOrAdmin(BasePermission):
     def has_permission(self, request: Request, view: View) -> bool:
-        if request.user.role and request.user.role.name in ["Manager", "Administrator"]:
-            return True
-        return False
+        if not request.user.is_authenticated:
+            return False
+
+        if not request.user.role:
+            return False
+
+        return request.user.role.name in ["Manager", "Administrator"]
 
 
 class IsTaskOwnerOrAdmin(BasePermission):
     def has_object_permission(self, request: Request, view: View, obj: Task) -> bool:
         # Якщо користувач - адміністратор або власник таска, дозволяємо доступ
-        if request.user.role and request.user.role.name in ["Administrator"]:
+        if request.user.role and request.user.role in ["Administrator"]:
             return True
         if obj.assigned_to == request.user:
             return True

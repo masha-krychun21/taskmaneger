@@ -5,7 +5,15 @@ from django.db import models
 
 
 class User(AbstractUser):
-    pass
+    ROLE_CHOICES = (
+        ("user", "User"),
+        ("manager", "Manager"),
+        ("admin", "Admin"),
+    )
+    role = models.CharField(max_length=10, choices=ROLE_CHOICES, default="user")
+
+    def __str__(self):
+        return f"{self.username} ({self.role})"
 
 
 # Модель ролі (користувач, менеджер, адміністратор)
@@ -27,8 +35,8 @@ class Team(models.Model):
 
 
 class CustomUser(AbstractUser):
-    role: Optional[models.ForeignKey[Role]] = models.ForeignKey(Role, on_delete=models.CASCADE, null=True, blank=True)
-    teams: models.ManyToManyField = models.ManyToManyField(Team, through="UserTeam")
+    role = models.ForeignKey(Role, on_delete=models.CASCADE, null=True, blank=True)
+    teams = models.ManyToManyField(Team, through="UserTeam")
 
     def make_admin(self) -> None:
         admin_role, created = Role.objects.get_or_create(name="Administrator")

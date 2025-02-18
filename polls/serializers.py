@@ -1,9 +1,10 @@
+from django.contrib.auth.hashers import make_password
 from rest_framework import serializers
 
 from custom_auth.models import CustomUser, Role, Team
 from polls.models import TaskComment
 
-from .models import Comment, Notification, Task, TaskHistory, TaskStatus
+from .models import Comment, Notification, NotificationSettings, Task, TaskHistory, TaskReminder, TaskStatus
 
 
 class TaskSerializer(serializers.ModelSerializer):
@@ -63,3 +64,30 @@ class TaskStatusUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Task
         fields = ["status"]
+
+
+# registration
+
+
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CustomUser
+        fields = ("id", "username", "email", "password", "role")
+        extra_kwargs = {"password": {"write_only": True}}
+
+    def create(self, validated_data):
+        validated_data["password"] = make_password(validated_data["password"])
+        return super().create(validated_data)
+
+
+# Notification
+class NotificationSettingsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = NotificationSettings
+        fields = "__all__"
+
+
+class TaskReminderSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TaskReminder
+        fields = "__all__"

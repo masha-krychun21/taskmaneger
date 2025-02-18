@@ -1,7 +1,7 @@
-from typing import Optional
-
 from django.conf import settings
 from django.db import models
+
+from custom_auth.models import CustomUser
 
 
 class TaskStatus(models.TextChoices):
@@ -31,9 +31,8 @@ class Task(models.Model):
         null=True,
         blank=True,
     )
-
     deadline: models.DateTimeField = models.DateTimeField(null=True, blank=True)
-    time_spent: Optional[models.DurationField] = models.DurationField(null=True, blank=True)
+    time_spent = models.DurationField(null=True, blank=True)
     created_at: models.DateTimeField = models.DateTimeField(auto_now_add=True)
     updated_at: models.DateTimeField = models.DateTimeField(auto_now=True)
 
@@ -52,20 +51,29 @@ class Comment(models.Model):
 
 
 class Notification(models.Model):
-    message: str = models.TextField()
-    status: str = models.CharField(max_length=20, default="unread")  # unread or read
-    created_at: models.DateTimeField = models.DateTimeField(auto_now_add=True)
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, null=True, blank=True)
+    message = models.TextField()
+    status = models.CharField(max_length=20, default="unread")
+    created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self) -> str:
         return f"Notification: {self.message}"
 
+    def mark_as_read(self):
+        self.status = "read"
+        self.save()
+
+    def mark_as_unread(self):
+        self.status = "unread"
+        self.save()
+
 
 class TaskHistory(models.Model):
-    task: models.ForeignKey = models.ForeignKey("polls.Task", on_delete=models.CASCADE)
+    task: models.ForeignKey = models.ForeignKey(Task, on_delete=models.CASCADE)
     user: models.ForeignKey = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     action: str = models.CharField(max_length=255)
     timestamp: models.DateTimeField = models.DateTimeField(auto_now_add=True)
-    previous_value: Optional[str] = models.TextField(null=True, blank=True)
+    previous_value = models.TextField(null=True, blank=True)
 
     def __str__(self) -> str:
         return f"History for {self.task.title} by {self.user}"
@@ -78,3 +86,25 @@ class TaskComment(models.Model):
 
     def __str__(self) -> str:
         return f"Task comment: {self.text}"
+
+
+class NotificationSettings(models.Model):
+    user = models.OneToOneField(
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="notification_settings"
+    )
+    new_task = models.BooleanField(default=True)
+    status_change = models.BooleanField(default=True)
+    deadline_reminders = models.BooleanField(default=True)
+
+    def __str__(self):
+        return f"Notification settings for {self.user}"
+
+
+class TaskReminder(models.Model):
+    task = models.ForeignKey(Task, on_delete=models.CASCADE, related_name="reminders")
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    remind_at = models.DateTimeField()
+    sent = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f"Reminder for {self.task.title} at {self.remind_at}"
