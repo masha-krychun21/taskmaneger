@@ -1,8 +1,9 @@
+import logging
+
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.forms import ValidationError
 from django.http import HttpRequest, HttpResponse
-from django.utils.timezone import now
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import status
 from rest_framework.decorators import action
@@ -19,7 +20,7 @@ from polls import permissions
 from polls.permissions import IsAuthenticatedCustom
 
 from .filters import TaskFilter
-from .models import Comment, Notification, NotificationSettings, Task, TaskComment, TaskHistory, TaskReminder
+from .models import Comment, Notification, NotificationSettings, Task, TaskComment, TaskHistory  # TaskReminder
 from .permissions import IsManagerOrAdmin
 from .serializers import (
     CommentSerializer,
@@ -28,7 +29,7 @@ from .serializers import (
     NotificationSettingsSerializer,
     TaskCommentSerializer,
     TaskHistorySerializer,
-    TaskReminderSerializer,
+    # TaskReminderSerializer,
     TaskSerializer,
     TaskStatusUpdateSerializer,
     TeamSerializer,
@@ -250,13 +251,13 @@ class NotificationSettingsViewSet(ModelViewSet):
         return self.queryset.filter(user=self.request.user)
 
 
-class TaskReminderViewSet(ModelViewSet):
-    queryset = TaskReminder.objects.all()
-    serializer_class = TaskReminderSerializer
-    permission_classes = [permissions.IsAuthenticatedCustom]
+# class TaskReminderViewSet(ModelViewSet):
+#     queryset = TaskReminder.objects.all()
+#     serializer_class = TaskReminderSerializer
+#     permission_classes = [permissions.IsAuthenticatedCustom]
 
-    def get_queryset(self):
-        return self.queryset.filter(user=self.request.user)
+#     def get_queryset(self):
+#         return self.queryset.filter(user=self.request.user)
 
 
 @receiver(post_save, sender=Task)
@@ -272,12 +273,16 @@ def create_task_notification(sender, instance, created, **kwargs):
         )
 
 
-@receiver(post_save, sender=TaskReminder)
-def send_task_reminder(sender, instance, **kwargs):
-    if not instance.sent and instance.remind_at <= now():
-        Notification.objects.create(user=instance.user, message=f"Reminder: Deadline for '{instance.task.title}'")
-        instance.sent = True
-        instance.save()
+logger = logging.getLogger(__name__)
+
+# @receiver(post_save, sender=TaskReminder)
+# def send_task_reminder(sender, instance, **kwargs):
+#     logger.info(f"TaskReminder ID {instance.id} - remind_at: {instance.remind_at}, sent: {instance.sent}")
+#     if not instance.sent and instance.remind_at <= timezone.now():
+#         Notification.objects.create(user=instance.user, message=f"Reminder: Deadline for '{instance.task.title}'")
+#         instance.sent = True
+#         instance.save()
+#         logger.info(f"Reminder sent for task {instance.task.title}")
 
 
 class MarkNotificationAsRead(APIView):

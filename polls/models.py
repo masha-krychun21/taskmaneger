@@ -1,5 +1,8 @@
+# from datetime import datetime
+
 from django.conf import settings
 from django.db import models
+from django.utils import timezone
 
 from custom_auth.models import CustomUser
 
@@ -31,10 +34,19 @@ class Task(models.Model):
         null=True,
         blank=True,
     )
-    deadline: models.DateTimeField = models.DateTimeField(null=True, blank=True)
+    deadline = models.DateTimeField(default=timezone.now, null=False)
+    reminder_24h = models.BooleanField(default=False)
+    reminder_1h = models.BooleanField(default=False)
     time_spent = models.DurationField(null=True, blank=True)
     created_at: models.DateTimeField = models.DateTimeField(auto_now_add=True)
     updated_at: models.DateTimeField = models.DateTimeField(auto_now=True)
+    # reminder_24h_sent = models.BooleanField(default=False)
+    # reminder_1h_sent = models.BooleanField(default=False)
+
+    def save(self, *args, **kwargs):
+        if timezone.is_naive(self.deadline):
+            self.deadline = timezone.make_aware(self.deadline)
+        super().save(*args, **kwargs)
 
     def __str__(self) -> str:
         return self.title
@@ -100,11 +112,11 @@ class NotificationSettings(models.Model):
         return f"Notification settings for {self.user}"
 
 
-class TaskReminder(models.Model):
-    task = models.ForeignKey(Task, on_delete=models.CASCADE, related_name="reminders")
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    remind_at = models.DateTimeField()
-    sent = models.BooleanField(default=False)
+# class TaskReminder(models.Model):
+#     task = models.ForeignKey(Task, on_delete=models.CASCADE, related_name="reminders")
+#     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+#     remind_at = models.DateTimeField()
+#     sent = models.BooleanField(default=False)
 
-    def __str__(self):
-        return f"Reminder for {self.task.title} at {self.remind_at}"
+#     def __str__(self):
+#         return f"Reminder for {self.task.title} at {self.remind_at}"

@@ -76,5 +76,9 @@ dependencies = [
     "drf-yasg==1.21.8",
     "drf-nested-routers==0.94.1",
     "ruff==0.9.6",
-    "uv==0.5.31"
+    "uv==0.5.31",
+    "django-filter==24.3",
+    "celery==5.4.0",
+    "redis==5.2.1",
+    "django-celery-beat==2.7.0"
 ]

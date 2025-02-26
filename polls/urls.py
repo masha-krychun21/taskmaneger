@@ -9,7 +9,7 @@ from .viewsets import (
     NotificationSettingsViewSet,
     NotificationViewSet,
     TaskHistoryViewSet,
-    TaskReminderViewSet,
+    # TaskReminderViewSet,
     TaskStatusUpdateView,
     TaskViewSet,
     TeamUsersViewSet,
@@ -27,7 +27,7 @@ router.register(r"manager/teams", ManagerTeamViewSet, basename="manager-teams")
 router.register(r"teams", ManagerTeamViewSet, basename="team")
 router.register(r"users", UserViewSet)
 router.register(r"notification-settings", NotificationSettingsViewSet, basename="notification-settings")
-router.register(r"task-reminders", TaskReminderViewSet, basename="task-reminder")
+# router.register(r"task-reminders", TaskReminderViewSet, basename="task-reminder")
 
 tasks_router = NestedDefaultRouter(router, r"tasks", lookup="task")
 tasks_router.register(r"comments", CommentViewSet, basename="task-comments")

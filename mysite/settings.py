@@ -13,6 +13,8 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 import os
 from pathlib import Path
 
+from celery.schedules import crontab
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -43,6 +45,7 @@ INSTALLED_APPS = [
     "drf_yasg",
     "custom_auth",
     "polls",
+    "django_celery_beat",
 ]
 
 MIDDLEWARE = [
@@ -76,16 +79,29 @@ TEMPLATES = [
 WSGI_APPLICATION = "mysite.wsgi.application"
 
 
+# DATABASES = {
+#     "default": {
+#         "ENGINE": "django.db.backends.postgresql",
+#         "NAME": "my_database",
+#         "USER": "user_1",
+#         "PASSWORD": "password",
+#         "HOST": "localhost",
+#         "PORT": "5432",
+#     }
+# }
+
+
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
-        "NAME": "my_database",
-        "USER": "user_1",
-        "PASSWORD": "password",
-        "HOST": "localhost",
-        "PORT": "5432",
+        "NAME": os.getenv("DB_NAME", "my_database"),
+        "USER": os.getenv("DB_USER", "user_1"),
+        "PASSWORD": os.getenv("DB_PASSWORD", "password"),
+        "HOST": os.getenv("DB_HOST", "db"),
+        "PORT": os.getenv("DB_PORT", "5432"),
     }
 }
+
 
 # LOGGING = {
 #     'version': 1,
@@ -143,7 +159,15 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
-STATIC_URL = "static/"
+
+STATIC_URL = "/static/"
+
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, "static"),
+]
+
+STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
+
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
@@ -153,6 +177,25 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 AUTH_USER_MODEL = "custom_auth.CustomUser"
 # AUTH_USER_MODEL = 'custom_auth.User'
+
+
+CELERY_BROKER_URL = "redis://redis:6379/0"
+CELERY_ACCEPT_CONTENT = ["json"]
+CELERY_TASK_SERIALIZER = "json"
+CELERY_RESULT_BACKEND = "redis://redis:6379/0"
+CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP = True
+
+
+USE_TZ = True
+TIME_ZONE = "UTC"
+
+
+CELERY_BEAT_SCHEDULE = {
+    "send_deadline_notifications": {
+        "task": "polls.tasks.deadline_notification",
+        "schedule": crontab(minute="*"),
+    }
+}
 
 
 REST_FRAMEWORK = {

@@ -4,7 +4,7 @@ from rest_framework import serializers
 from custom_auth.models import CustomUser, Role, Team
 from polls.models import TaskComment
 
-from .models import Comment, Notification, NotificationSettings, Task, TaskHistory, TaskReminder, TaskStatus
+from .models import Comment, Notification, NotificationSettings, Task, TaskHistory, TaskStatus  # TaskReminder,
 
 
 class TaskSerializer(serializers.ModelSerializer):
@@ -87,7 +87,7 @@ class NotificationSettingsSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 
-class TaskReminderSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = TaskReminder
-        fields = "__all__"
+# class TaskReminderSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = TaskReminder
+#         fields = "__all__"

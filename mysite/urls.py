@@ -1,4 +1,7 @@
+from django.conf import settings
+from django.conf.urls.static import static
 from django.contrib import admin
+from django.http import HttpResponse
 from django.urls import include, path
 from drf_yasg import openapi
 from drf_yasg.views import get_schema_view
@@ -18,6 +21,10 @@ schema_view = get_schema_view(
 )
 
 
+def home_view(request):
+    return HttpResponse("Головна сторінка працює!")
+
+
 urlpatterns = [
     # path("polls/", include("polls.urls")),
     path("admin/", admin.site.urls),
@@ -29,5 +36,9 @@ urlpatterns = [
     ),
     path("redoc/", schema_view.with_ui("redoc", cache_timeout=0), name="schema-redoc"),
     path("api/", include("polls.urls")),
+    path("", home_view, name="home"),
     path("api-auth/", include("rest_framework.urls")),  # DRF логін/логаут
 ]
+
+if settings.DEBUG:
+    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
